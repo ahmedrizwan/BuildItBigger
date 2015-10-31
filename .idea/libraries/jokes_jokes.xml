@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jokes.jokes">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/jokes/build/libs/jokes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
