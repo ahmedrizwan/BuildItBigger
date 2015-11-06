@@ -1,15 +1,26 @@
 package com.udacity.gradle.builditbigger;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.minimize.ahmedrizwan.builditbigger.backend.myApi.MyApi;
+
+import java.io.IOException;
+
+import app.minimize.com.androidjokesviewer.JokeViewerActivity;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -34,17 +45,43 @@ public class MainActivityFragment extends Fragment {
                 .build();
         mAdView.loadAd(adRequest);
 
-        root.findViewById(R.id.buttonTellJoke).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-//                Intent intent = new Intent(getActivity(), JokeViewerActivity.class);
-//                intent.putExtra(JokeViewerActivity.JOKE, joke);
-//                startActivity(intent);
-                new EndpointsAsyncTask().execute(new Pair<Context, String>(getActivity(), "Manfred"));
-            }
-        });
-
+        MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
+                new AndroidJsonFactory(), null)
+                .setRootUrl("http://10.0.3.2:8080/_ah/api/")
+                .setGoogleClientRequestInitializer(abstractGoogleClientRequest ->
+                        abstractGoogleClientRequest.setDisableGZipContent(true));
+        final MyApi myApiService = builder.build();
+        root.findViewById(R.id.buttonTellJoke)
+                .setOnClickListener(v -> {
+                    getJokeObservable(myApiService).subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(jokeString -> {
+                                Intent intent = new Intent(getActivity(), JokeViewerActivity.class);
+                                intent.putExtra(JokeViewerActivity.JOKE, jokeString);
+                                startActivity(intent);
+                            }, throwable -> {
+                                Toast.makeText(getActivity(), throwable.getMessage(), Toast.LENGTH_SHORT)
+                                        .show();
+                            });
+                });
 
         return root;
+    }
+
+    public static Observable<String> getJokeObservable(final MyApi myApiService) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(final Subscriber<? super String> subscriber) {
+                try {
+                    subscriber.onNext(
+                            myApiService.getJoke()
+                                    .execute()
+                                    .getJoke());
+                    subscriber.onCompleted();
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
     }
 }
