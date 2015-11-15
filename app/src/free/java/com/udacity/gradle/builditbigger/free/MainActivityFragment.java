@@ -1,4 +1,4 @@
-package com.udacity.gradle.builditbigger;
+package com.udacity.gradle.builditbigger.free;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,15 +10,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.extensions.android.json.AndroidJsonFactory;
-import com.minimize.ahmedrizwan.builditbigger.backend.myApi.MyApi;
-
-import java.io.IOException;
+import com.udacity.gradle.builditbigger.Observables;
+import com.udacity.gradle.builditbigger.R;
 
 import app.minimize.com.androidjokesviewer.JokeViewerActivity;
-import rx.Observable;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -45,15 +40,13 @@ public class MainActivityFragment extends Fragment {
                 .build();
         mAdView.loadAd(adRequest);
 
-        MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
-                new AndroidJsonFactory(), null)
-                .setRootUrl("http://10.0.3.2:8080/_ah/api/")
-                .setGoogleClientRequestInitializer(abstractGoogleClientRequest ->
-                        abstractGoogleClientRequest.setDisableGZipContent(true));
-        final MyApi myApiService = builder.build();
+
+        final Observables observables = new Observables();
+
         root.findViewById(R.id.buttonTellJoke)
                 .setOnClickListener(v -> {
-                    getJokeObservable(myApiService).subscribeOn(Schedulers.newThread())
+                    observables.getJokeObservable(observables.getMyApi())
+                            .subscribeOn(Schedulers.newThread())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(jokeString -> {
                                 Intent intent = new Intent(getActivity(), JokeViewerActivity.class);
@@ -68,20 +61,5 @@ public class MainActivityFragment extends Fragment {
         return root;
     }
 
-    public static Observable<String> getJokeObservable(final MyApi myApiService) {
-        return Observable.create(new Observable.OnSubscribe<String>() {
-            @Override
-            public void call(final Subscriber<? super String> subscriber) {
-                try {
-                    subscriber.onNext(
-                            myApiService.getJoke()
-                                    .execute()
-                                    .getJoke());
-                    subscriber.onCompleted();
-                } catch (IOException e) {
-                    subscriber.onError(e);
-                }
-            }
-        });
-    }
+
 }
