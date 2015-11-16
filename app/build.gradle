@@ -38,21 +38,26 @@ dependencies {
     // Added for AdMob
 
     compile project(':androidjokesviewer')
-    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
     //RxBindings
     compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
     //RxAndroid
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava:1.0.15'
     //Robolectric Testing
-    testCompile 'org.robolectric:robolectric:3.0'
-    testCompile('com.squareup.assertj:assertj-android:1.1.0') {
+//    testCompile 'org.robolectric:robolectric:3.0'
+//    testCompile('com.squareup.assertj:assertj-android:1.1.0') {
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//    }
+
+    androidTestCompile('com.squareup.assertj:assertj-android:1.1.0') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
     // Unit testing dependencies
-    testCompile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
 
     compile 'com.google.android.gms:play-services-base:8.3.0'
     compile 'com.google.android.gms:play-services-ads:8.3.0'
     compile project(path: ':backend', configuration: 'android-endpoints')
 }
+
