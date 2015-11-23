@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
@@ -25,6 +26,7 @@ import rx.schedulers.Schedulers;
  */
 public class MainActivityFragment extends Fragment {
     InterstitialAd mInterstitialAd;
+    ProgressBar mProgressBar;
 
     public MainActivityFragment() {
     }
@@ -35,6 +37,8 @@ public class MainActivityFragment extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_main, container, false);
         final Observables observables = new Observables();
         final AdView mAdView = (AdView) root.findViewById(R.id.adView);
+        mProgressBar = (ProgressBar) root.findViewById(R.id.progressBar);
+
         mInterstitialAd = new InterstitialAd(getActivity());
         mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
 
@@ -62,23 +66,25 @@ public class MainActivityFragment extends Fragment {
                     } else {
                         loadJoke(observables);
                     }
-
                 });
 
         return root;
     }
 
     private void loadJoke(final Observables observables) {
+        mProgressBar.setVisibility(View.VISIBLE);
         observables.getJokeObservable(observables.getMyApi())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(jokeString -> {
+                    mProgressBar.setVisibility(View.GONE);
                     Intent intent = new Intent(getActivity(), JokeViewerActivity.class);
                     intent.putExtra(JokeViewerActivity.JOKE, jokeString);
                     startActivity(intent);
                 }, throwable -> {
                     Toast.makeText(getActivity(), throwable.getMessage(), Toast.LENGTH_SHORT)
                             .show();
+                    mProgressBar.setVisibility(View.GONE);
                 });
     }
 
