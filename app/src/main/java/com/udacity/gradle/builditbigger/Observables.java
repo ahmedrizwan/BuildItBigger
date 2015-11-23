@@ -11,6 +11,7 @@ import rx.Subscriber;
 
 /**
  * Created by ahmedrizwan on 15/11/2015.
+ *
  */
 public class Observables {
     public Observable<String> getJokeObservable(final MyApi myApiService) {
