@@ -14,6 +14,7 @@ import rx.Subscriber;
  *
  */
 public class Observables {
+
     public Observable<String> getJokeObservable(final MyApi myApiService) {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override

@@ -2,6 +2,7 @@ package com.udacity.gradle.builditbigger;
 
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.MediumTest;
+import android.util.Log;
 
 import rx.schedulers.Schedulers;
 
@@ -33,10 +34,9 @@ public class AsyncTests extends ActivityInstrumentationTestCase2<MainActivity> {
                     .toBlocking()
                     .first();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            Log.e("Exception",e.getMessage());
         }
         //Assert that a string is returned
         assertTrue(jokeString.length() > 0);
-        System.out.println("Joke Returned : " + jokeString);
     }
 }

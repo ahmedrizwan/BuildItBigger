@@ -23,6 +23,7 @@ import com.minimize.Jokes;
   )
 )
 public class MyEndpoint {
+    Jokes mJokes = new Jokes();
 
     /** A simple endpoint method that takes a name and says Hi back */
     @ApiMethod(name = "sayHi")
@@ -36,7 +37,7 @@ public class MyEndpoint {
     @ApiMethod(name = "getJoke")
     public JokeBean getJoke(){
         JokeBean response = new JokeBean();
-        response.setJoke(Jokes.getJoke());
+        response.setJoke(mJokes.getNextJoke());
         return response;
     }
 
